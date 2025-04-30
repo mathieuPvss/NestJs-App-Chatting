@@ -1,18 +1,18 @@
 services:
-  postgres_app:
+  postgres:
     image: postgres:17.4
-    container_name: postgres_app
+    container_name: postgres
     volumes:
       - postgresApp:/var/lib/postgresql/data
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-  backend:
+  backend_chatting:
     image: node:23-alpine
-    container_name: backend
+    container_name: backend_chatting
     working_dir: /app
     volumes:
       - ./backend/app-chatting:/app
@@ -20,20 +20,22 @@ services:
       - 3000:3000
       - 9229:9229
     environment:
-      - DB_HOST=${DB_HOST}
+      - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - NEST_PORT=${NEST_PORT}
     entrypoint: ["sh", "./entrypoint.sh"]
     depends_on:
-      - postgres_app
+      - postgres
 
   adminer:
     image: adminer:latest
     ports:
       - 8081:8080
     depends_on:
-      - postgres_app
+      - postgres
 
 volumes:
   postgresApp:
