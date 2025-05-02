@@ -5,25 +5,40 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
+
+export enum FriendshipStatus {
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  REJECTED = 'rejected',
+}
 
 @Entity()
 export class Friendship {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @ManyToOne(() => User)
-  requester: User;
-
-  @ManyToOne(() => User)
-  recipient: User;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({
     type: 'enum',
-    enum: ['pending', 'accepted', 'rejected'],
-    default: 'pending',
+    enum: FriendshipStatus,
+    default: FriendshipStatus.PENDING,
   })
-  status: 'pending' | 'accepted' | 'rejected';
+  status: FriendshipStatus;
+
+  @Column()
+  requesterId: string;
+
+  @Column()
+  recipientId: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'requesterId' })
+  requester: User;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'recipientId' })
+  recipient: User;
 
   @CreateDateColumn()
   createdAt: Date;
