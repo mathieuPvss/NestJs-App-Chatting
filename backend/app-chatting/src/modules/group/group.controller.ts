@@ -1,34 +1,91 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Delete,
+  Patch,
+  Request,
+} from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
-import { UpdateGroupDto } from './dto/update-group.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { Group } from './entities/group.entity';
 
-@Controller('group')
+@ApiTags('Groups')
+@Controller('groups')
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Post()
-  create(@Body() createGroupDto: CreateGroupDto) {
-    return this.groupService.create(createGroupDto);
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Créer un nouveau groupe' })
+  @ApiResponse({
+    status: 201,
+    description: 'Le groupe a été créé avec succès',
+    type: Group,
+  })
+  async create(@Body() dto: CreateGroupDto): Promise<Group> {
+    return this.groupService.createGroup(dto);
   }
 
-  @Get()
-  findAll() {
-    return this.groupService.findAll();
+  @Get('/get/:id')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Récupérer un groupe par son ID' })
+  @ApiParam({ name: 'id', description: 'ID du groupe' })
+  async findById(@Param('id') id: string): Promise<Group> {
+    return this.groupService.findGroupById(id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.groupService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
-    return this.groupService.update(+id, updateGroupDto);
+  @Get('user')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Récupérer les groupes d’un utilisateur' })
+  async findGroupsByUser(@Request() req): Promise<Group[]> {
+    return this.groupService.findGroupsByUser(req.user.userId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.groupService.remove(+id);
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Supprimer un groupe (propriétaire uniquement)' })
+  @ApiParam({ name: 'id', description: 'ID du groupe' })
+  async deleteGroup(
+    @Param('id') groupId: string,
+    @Request() req,
+  ): Promise<void> {
+    return this.groupService.deleteGroup(groupId, req.user.userId);
+  }
+
+  @Patch(':id/add/:userId')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Ajouter un membre à un groupe' })
+  @ApiParam({ name: 'id', description: 'ID du groupe' })
+  @ApiParam({ name: 'userId', description: "ID de l'utilisateur à ajouter" })
+  async addMember(
+    @Param('id') groupId: string,
+    @Param('userId') userId: string,
+  ): Promise<Group> {
+    return this.groupService.addMember(groupId, userId);
+  }
+
+  @Patch(':id/remove/:userId')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Retirer un membre du groupe' })
+  @ApiParam({ name: 'id', description: 'ID du groupe' })
+  @ApiParam({
+    name: 'userId',
+    description: "ID de l'utilisateur à retirer",
+  })
+  async removeMember(
+    @Param('id') groupId: string,
+    @Param('userId') userId: string,
+  ): Promise<Group> {
+    return this.groupService.removeMember(groupId, userId);
   }
 }

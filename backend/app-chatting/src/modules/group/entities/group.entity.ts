@@ -12,13 +12,17 @@ import {
 
 @Entity()
 export class Group {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;
 
+  @Column()
+  ownerId: string;
+
   @ManyToOne(() => User)
+  @JoinTable({ name: 'ownerId' })
   owner: User;
 
   @ManyToMany(() => User)
