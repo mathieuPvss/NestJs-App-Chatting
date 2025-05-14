@@ -1,4 +1,5 @@
 import { Message } from 'src/modules/messages/entities/message.entity';
+import { GroupMessage } from 'src/modules/group-message/entities/group-message.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum Role {
@@ -29,4 +30,7 @@ export class User {
 
   @OneToMany(() => Message, (message) => message.recipient)
   receivedMessages: Message[];
+
+  @OneToMany(() => GroupMessage, (message) => message.sender)
+  groupMessages: GroupMessage[];
 }

@@ -1,27 +1,36 @@
-import { Group } from 'src/modules/group/entities/group.entity';
-import { User } from 'src/modules/users/entities/user.entity';
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  PrimaryGeneratedColumn,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { User } from 'src/modules/users/entities/user.entity';
+import { Group } from 'src/modules/group/entities/group.entity';
 
-@Entity()
+@Entity('group_messages')
 export class GroupMessage {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   content: string;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
   @ManyToOne(() => User)
+  @JoinColumn({ name: 'sender_id' })
   sender: User;
 
-  @ManyToOne(() => Group, (group) => group.messages)
+  @Column()
+  senderId: string;
+
+  @ManyToOne(() => Group)
+  @JoinColumn({ name: 'group_id' })
   group: Group;
 
-  @CreateDateColumn()
-  timestamp: Date;
+  @Column()
+  groupId: string;
 }

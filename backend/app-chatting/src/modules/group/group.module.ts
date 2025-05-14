@@ -10,5 +10,6 @@ import { UsersModule } from '../users/users.module';
   imports: [TypeOrmModule.forFeature([Group]), UsersModule],
   controllers: [GroupController],
   providers: [GroupService, GroupRepository],
+  exports: [GroupService],
 })
 export class GroupModule {}

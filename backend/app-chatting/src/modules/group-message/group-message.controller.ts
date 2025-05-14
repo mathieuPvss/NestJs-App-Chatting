@@ -1,34 +1,61 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Delete,
+  Request,
+} from '@nestjs/common';
 import { GroupMessageService } from './group-message.service';
 import { CreateGroupMessageDto } from './dto/create-group-message.dto';
-import { UpdateGroupMessageDto } from './dto/update-group-message.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { GroupMessage } from './entities/group-message.entity';
 
-@Controller('group-message')
+@ApiTags('Group Messages')
+@Controller('group-messages')
 export class GroupMessageController {
   constructor(private readonly groupMessageService: GroupMessageService) {}
 
   @Post()
-  create(@Body() createGroupMessageDto: CreateGroupMessageDto) {
-    return this.groupMessageService.create(createGroupMessageDto);
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Créer un nouveau message dans un groupe' })
+  @ApiResponse({
+    status: 201,
+    description: 'Le message a été créé avec succès',
+    type: GroupMessage,
+  })
+  async create(
+    @Body() dto: CreateGroupMessageDto,
+    @Request() req,
+  ): Promise<GroupMessage> {
+    return this.groupMessageService.createMessage(dto, req.user.userId);
   }
 
-  @Get()
-  findAll() {
-    return this.groupMessageService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.groupMessageService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGroupMessageDto: UpdateGroupMessageDto) {
-    return this.groupMessageService.update(+id, updateGroupMessageDto);
+  @Get('group/:groupId')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: "Récupérer tous les messages d'un groupe" })
+  @ApiParam({ name: 'groupId', description: 'ID du groupe' })
+  async findMessagesByGroup(
+    @Param('groupId') groupId: string,
+  ): Promise<GroupMessage[]> {
+    return this.groupMessageService.findMessagesByGroup(groupId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.groupMessageService.remove(+id);
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Supprimer un message' })
+  @ApiParam({ name: 'id', description: 'ID du message' })
+  async deleteMessage(
+    @Param('id') messageId: string,
+    @Request() req,
+  ): Promise<void> {
+    return this.groupMessageService.deleteMessage(messageId, req.user.userId);
   }
 }

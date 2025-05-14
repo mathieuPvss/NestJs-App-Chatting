@@ -1,26 +1,63 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { GroupMessageRepository } from './group-message.repository';
+import { UsersService } from 'src/modules/users/users.service';
+import { GroupService } from 'src/modules/group/group.service';
 import { CreateGroupMessageDto } from './dto/create-group-message.dto';
-import { UpdateGroupMessageDto } from './dto/update-group-message.dto';
+import { GroupMessage } from './entities/group-message.entity';
 
 @Injectable()
 export class GroupMessageService {
-  create(createGroupMessageDto: CreateGroupMessageDto) {
-    return 'This action adds a new groupMessage';
+  constructor(
+    private readonly groupMessageRepository: GroupMessageRepository,
+    private readonly userService: UsersService,
+    private readonly groupService: GroupService,
+  ) {}
+
+  async createMessage(
+    createMessageDto: CreateGroupMessageDto,
+    senderId: string,
+  ): Promise<GroupMessage> {
+    const sender = await this.userService.findOne(senderId);
+    const group = await this.groupService.findGroupById(
+      createMessageDto.groupId,
+    );
+
+    // Vérifier si l'utilisateur est membre du groupe
+    const isMember = group.members.some((member) => member.id === senderId);
+    if (!isMember) {
+      throw new ForbiddenException("Vous n'êtes pas membre de ce groupe");
+    }
+
+    return this.groupMessageRepository.createMessage(
+      createMessageDto.content,
+      sender,
+      group,
+    );
   }
 
-  findAll() {
-    return `This action returns all groupMessage`;
+  async findMessagesByGroup(groupId: string): Promise<GroupMessage[]> {
+    const group = await this.groupService.findGroupById(groupId);
+    if (!group) {
+      throw new NotFoundException('Groupe non trouvé');
+    }
+    return this.groupMessageRepository.findMessagesByGroup(groupId);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} groupMessage`;
-  }
+  async deleteMessage(messageId: string, userId: string): Promise<void> {
+    const message =
+      await this.groupMessageRepository.findMessageById(messageId);
+    if (!message) {
+      throw new NotFoundException('Message non trouvé');
+    }
 
-  update(id: number, updateGroupMessageDto: UpdateGroupMessageDto) {
-    return `This action updates a #${id} groupMessage`;
-  }
+    if (message.senderId !== userId) {
+      throw new ForbiddenException('Vous ne pouvez pas supprimer ce message');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} groupMessage`;
+    await this.groupMessageRepository.deleteMessage(messageId);
   }
 }

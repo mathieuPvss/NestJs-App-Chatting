@@ -5,22 +5,31 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('messages')
 export class Message {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   content: string;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
   @ManyToOne(() => User, (user) => user.sentMessages)
+  @JoinColumn({ name: 'sender_id' })
   sender: User;
 
+  @Column()
+  senderId: string;
+
   @ManyToOne(() => User, (user) => user.receivedMessages)
+  @JoinColumn({ name: 'recipient_id' })
   recipient: User;
 
-  @CreateDateColumn()
-  timestamp: Date;
+  @Column()
+  recipientId: string;
 }
