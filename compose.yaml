@@ -29,6 +29,20 @@ services:
     entrypoint: ["sh", "./entrypoint.sh"]
     depends_on:
       - postgres
+  frontend_chatting:
+    image: node:23-alpine
+    container_name: frontend_chatting
+    working_dir: /app
+    volumes:
+      - ./frontend/vue-chat:/app
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_NEST_BACKEND_URL=${NEST_BACKEND_URL}
+    entrypoint: ["sh", "./entrypoint.sh"]
+    depends_on:
+      - postgres
+      - backend_chatting
 
   adminer:
     image: adminer:latest

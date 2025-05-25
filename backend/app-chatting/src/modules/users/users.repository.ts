@@ -10,8 +10,13 @@ export class UserRepository {
     private readonly repo: Repository<User>,
   ) {}
 
-  async createUser(email: string, password: string, role: Role): Promise<User> {
-    const user = this.repo.create({ email, password, role });
+  async createUser(
+    email: string,
+    password: string,
+    role: Role,
+    username: string,
+  ): Promise<User> {
+    const user = this.repo.create({ email, password, role, username });
     return this.repo.save(user);
   }
 

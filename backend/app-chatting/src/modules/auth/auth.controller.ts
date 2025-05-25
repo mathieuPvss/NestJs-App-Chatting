@@ -12,7 +12,7 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
   async register(@Body() dto: RegisterDto) {
-    await this.authService.register(dto.email, dto.password);
+    await this.authService.register(dto.email, dto.password, dto.username);
     return;
   }
 
@@ -24,10 +24,20 @@ export class AuthController {
     const token = await this.authService.login(user);
     return {
       access_token: token.access_token,
+      refresh_token: token.refresh_token,
       user: {
+        id: user.id,
+        username: user.username,
         email: user.email,
         role: user.role,
       },
     };
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  async refresh(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refreshTokens(refreshToken);
   }
 }

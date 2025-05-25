@@ -11,8 +11,13 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string) {
-    return this.usersService.create({ email, password, role: Role.USER });
+  async register(email: string, password: string, username: string) {
+    return this.usersService.create({
+      email,
+      password,
+      role: Role.USER,
+      username,
+    });
   }
 
   async validateUser(email: string, password: string) {
@@ -24,9 +29,35 @@ export class AuthService {
   }
 
   async login(user: User) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
-    return {
-      access_token: this.jwtService.sign(payload),
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      username: user.username,
     };
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.sign(payload, { expiresIn: '1m' }),
+      this.jwtService.sign(payload, { expiresIn: '7d' }),
+    ]);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
+  async refreshTokens(refreshToken: string) {
+    try {
+      const payload = await this.jwtService.verify(refreshToken);
+      const user = await this.usersService.findOne(payload.sub);
+
+      if (!user) {
+        throw new UnauthorizedException('Utilisateur non trouvé');
+      }
+
+      return this.login(user);
+    } catch (error) {
+      throw new UnauthorizedException('Refresh token invalide');
+    }
   }
 }

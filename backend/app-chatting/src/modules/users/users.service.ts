@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -23,6 +24,7 @@ export class UsersService {
       createUserDto.email,
       hashedPassword,
       createUserDto.role,
+      createUserDto.username,
     );
     return user;
   }
@@ -42,11 +44,30 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
 
-    if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    const updateUserData: Partial<User> = {};
+    if (updateUserDto.oldPassword && updateUserDto.newPassword) {
+      const isPasswordValid = await bcrypt.compare(
+        updateUserDto.oldPassword,
+        user.password,
+      );
+      if (!isPasswordValid) {
+        throw new ForbiddenException('Mot de passe incorrect');
+      }
+      updateUserDto.newPassword = await bcrypt.hash(
+        updateUserDto.newPassword,
+        10,
+      );
+      updateUserData.password = updateUserDto.newPassword;
     }
 
-    return this.userRepository.updateUser(user.id, updateUserDto);
+    if (updateUserDto.username) {
+      updateUserData.username = updateUserDto.username;
+    }
+
+    if (updateUserDto.email) {
+      updateUserData.email = updateUserDto.email;
+    }
+    return this.userRepository.updateUser(user.id, updateUserData);
   }
 
   async getByEmail(email: string): Promise<User> {

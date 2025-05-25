@@ -5,6 +5,16 @@ import { Role } from '../entities/user.entity';
 export class CreateUserDto {
   @ApiProperty({
     description: "Nom d'utilisateur unique",
+    example: 'john_doe',
+  })
+  @IsString()
+  @Length(3, 20, {
+    message: "Le nom d'utilisateur doit contenir entre 3 et 20 caractères.",
+  })
+  username: string;
+
+  @ApiProperty({
+    description: "Nom d'utilisateur unique",
     example: 'john_doe@gmail.com',
   })
   @IsEmail()

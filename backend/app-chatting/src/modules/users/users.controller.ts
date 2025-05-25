@@ -21,7 +21,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
-import { RolesGuard } from '../auth/roles.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('Users')
 @Controller('users')
@@ -35,13 +35,12 @@ export class UsersController {
     description: 'Utilisateur créé avec succès.',
     type: User,
   })
-  // @ApiBearerAuth('access-token')
+  @ApiBearerAuth('access-token')
   @Public()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  @ApiBearerAuth()
   @Get()
   @ApiOperation({ summary: 'Récupérer tous les utilisateurs' })
   @ApiResponse({

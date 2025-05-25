@@ -12,7 +12,9 @@ import { Message } from './modules/messages/entities/message.entity';
 import { MessagesModule } from './modules/messages/messages.module';
 import { User } from './modules/users/entities/user.entity';
 import { UsersModule } from './modules/users/users.module';
-import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { ChatModule } from './modules/chat/chat.module';
+import { SeederModule } from './seeds/seeder.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
     GroupModule,
     GroupMessageModule,
     AuthModule,
+    ChatModule,
+    SeederModule,
   ],
   providers: [
     {
