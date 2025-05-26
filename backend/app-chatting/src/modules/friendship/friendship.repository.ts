@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { Friendship, FriendshipStatus } from './entities/friendship.entity';
 import { User } from 'src/modules/users/entities/user.entity';
+import { Message } from '../messages/entities/message.entity';
 
 @Injectable()
 export class FriendshipRepository {
   constructor(
     @InjectRepository(Friendship)
     private readonly repo: Repository<Friendship>,
+    @InjectRepository(Message)
+    private readonly messageRepo: Repository<Message>,
   ) {}
 
   async createFriendship(
@@ -45,7 +48,7 @@ export class FriendshipRepository {
     return this.repo.find({
       where: {
         requesterId: requesterId,
-        status: FriendshipStatus.PENDING,
+        status: In([FriendshipStatus.PENDING, FriendshipStatus.REJECTED]),
       },
       relations: ['recipient'],
     });
@@ -59,8 +62,32 @@ export class FriendshipRepository {
     return this.findById(id);
   }
 
-  async deleteFriendship(id: string): Promise<void> {
-    await this.repo.delete(id);
+  //delete friendship and messages between the two users
+  async deleteFriendship(
+    id: string,
+    requesterId: string,
+    recipientId: string,
+  ): Promise<void> {
+    const queryRunner = this.repo.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.delete(Friendship, { id });
+      await queryRunner.manager.delete(Message, {
+        senderId: requesterId,
+        recipientId: recipientId,
+      });
+      await queryRunner.manager.delete(Message, {
+        recipientId: recipientId,
+        senderId: requesterId,
+      });
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async findAllFriends(

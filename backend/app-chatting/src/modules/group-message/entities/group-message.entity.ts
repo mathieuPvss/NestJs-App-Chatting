@@ -21,14 +21,14 @@ export class GroupMessage {
   createdAt: Date;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'sender_id' })
+  @JoinColumn({ name: 'senderId' })
   sender: User;
 
   @Column()
   senderId: string;
 
   @ManyToOne(() => Group)
-  @JoinColumn({ name: 'group_id' })
+  @JoinColumn({ name: 'groupId' })
   group: Group;
 
   @Column()

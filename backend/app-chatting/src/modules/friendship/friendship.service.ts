@@ -46,14 +46,42 @@ export class FriendshipService {
     return friendship;
   }
 
-  async getReceivedFriendRequests(
-    userId: string,
-  ): Promise<Friendship[] | null> {
-    return this.friendshipRepo.findFriendRequest(userId);
+  async getReceivedFriendRequests(userId: string): Promise<
+    {
+      requester: string;
+      id: string;
+      status: FriendshipStatus;
+      requesterId: string;
+      recipientId: string;
+      recipient: User;
+      createdAt: Date;
+    }[]
+  > {
+    const result = await this.friendshipRepo.findFriendRequest(userId);
+    const friendships = result.map((friendship) => ({
+      ...friendship,
+      requester: friendship.requester.username,
+    }));
+    return friendships;
   }
 
-  async getSentFriendRequests(userId: string): Promise<Friendship[] | null> {
-    return this.friendshipRepo.findMyFriendRequest(userId);
+  async getSentFriendRequests(userId: string): Promise<
+    {
+      recipient: string;
+      id: string;
+      status: FriendshipStatus;
+      requesterId: string;
+      recipientId: string;
+      requester: User;
+      createdAt: Date;
+    }[]
+  > {
+    const result = await this.friendshipRepo.findMyFriendRequest(userId);
+    const friendships = result.map((friendship) => ({
+      ...friendship,
+      recipient: friendship.recipient.username,
+    }));
+    return friendships;
   }
 
   async acceptFriendRequest(id: string, userId: string): Promise<Friendship> {
@@ -106,7 +134,11 @@ export class FriendshipService {
       );
     }
 
-    await this.friendshipRepo.deleteFriendship(id);
+    await this.friendshipRepo.deleteFriendship(
+      id,
+      friendship.requesterId,
+      friendship.recipientId,
+    );
   }
 
   async getAllFriends(

@@ -6,6 +6,8 @@ import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import NewFriendsRequestView from '@/views/NewFriendsRequest.vue'
+import MyFriendsRequestView from '@/views/MyFriendsRequest.vue'
 import FriendsView from '@/views/FriendsView.vue'
 
 const router = createRouter({
@@ -49,6 +51,16 @@ const router = createRouter({
           path: 'friends',
           name: 'friends',
           component: FriendsView,
+        },
+        {
+          path: 'new-friends-request',
+          name: 'new-friends-request',
+          component: NewFriendsRequestView,
+        },
+        {
+          path: 'my-friends-request',
+          name: 'my-friends-request',
+          component: MyFriendsRequestView,
         },
       ],
     },

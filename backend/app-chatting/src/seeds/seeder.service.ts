@@ -44,7 +44,6 @@ export class SeederService {
           const group = this.groupRepository.create({
             ...groupData,
             owner: createdUsers[1], // user 1 is the owner
-            ownerId: createdUsers[1].id,
             members: createdUsers,
           });
           return this.groupRepository.save(group);
@@ -57,9 +56,7 @@ export class SeederService {
           const message = this.messageRepository.create({
             ...messageData,
             sender: createdUsers[index % createdUsers.length],
-            senderId: createdUsers[index % createdUsers.length].id,
             recipient: createdUsers[(index + 1) % createdUsers.length],
-            recipientId: createdUsers[(index + 1) % createdUsers.length].id,
           });
           return this.messageRepository.save(message);
         }),
@@ -71,9 +68,7 @@ export class SeederService {
           const friendship = this.friendshipRepository.create({
             ...friendshipData,
             requester: createdUsers[index % createdUsers.length],
-            requesterId: createdUsers[index % createdUsers.length].id,
             recipient: createdUsers[(index + 1) % createdUsers.length],
-            recipientId: createdUsers[(index + 1) % createdUsers.length].id,
           });
           return this.friendshipRepository.save(friendship);
         }),
@@ -85,9 +80,7 @@ export class SeederService {
           const message = this.groupMessageRepository.create({
             ...messageData,
             sender: createdUsers[index % createdUsers.length],
-            senderId: createdUsers[index % createdUsers.length].id,
             group: createdGroups[index % createdGroups.length],
-            groupId: createdGroups[index % createdGroups.length].id,
           });
           return this.groupMessageRepository.save(message);
         }),

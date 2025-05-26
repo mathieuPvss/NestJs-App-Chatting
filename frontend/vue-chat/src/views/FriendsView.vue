@@ -4,6 +4,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { friendshipService } from '@/services/friendshipService'
 import DialogSearchUser from '@/components/friends/DialogSearchUser.vue'
+import { toast } from 'vue-sonner'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 
 const dialogAddBlockRef = ref<InstanceType<typeof DialogSearchUser> | null>(null)
 
@@ -15,6 +27,8 @@ const friends = ref<
     avatar: string
   }[]
 >([])
+
+const friendToDelete = ref<{ friendshipId: string; username: string } | null>(null)
 
 onMounted(async () => {
   const response = await friendshipService.getAllFriends()
@@ -39,8 +53,14 @@ function sendMessage(friend) {
   alert(`Envoyer un message à ${friend.username}`)
 }
 
-function removeFriend(friend) {
-  alert(`Supprimer ${friend.username} de la liste d'amis`)
+async function removeFriend(friendshipId: string) {
+  try {
+    await friendshipService.removeFriend(friendshipId)
+    friends.value = friends.value.filter((f) => f.friendshipId !== friendshipId)
+    toast.success('Ami supprimé avec succès')
+  } catch (error) {
+    toast.error("Erreur lors de la suppression de l'ami")
+  }
 }
 </script>
 
@@ -55,7 +75,8 @@ function removeFriend(friend) {
       />
       <Button @click="dialogAddBlockRef?.openDialogFunction()">Ajouter un ami</Button>
     </div>
-    <ul class="space-y-4">
+    <div v-if="friends.length === 0" class="text-center text-gray-500 py-4">Aucun ami trouvé</div>
+    <ul v-else class="space-y-4">
       <li
         v-for="friend in friends"
         :key="friend.id"
@@ -70,7 +91,25 @@ function removeFriend(friend) {
         </div>
         <div class="flex items-center space-x-2">
           <Button @click="sendMessage(friend)" variant="outline"> Message </Button>
-          <Button @click="removeFriend(friend)" variant="destructive"> Supprimer </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">Supprimer</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action est irréversible. Vous ne pourrez plus voir les messages de cet ami.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction @click="removeFriend(friend.friendshipId)">
+                  Continuer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </li>
     </ul>

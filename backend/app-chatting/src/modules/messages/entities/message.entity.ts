@@ -19,15 +19,19 @@ export class Message {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => User, (user) => user.sentMessages)
-  @JoinColumn({ name: 'sender_id' })
+  @ManyToOne(() => User, (user) => user.sentMessages, {
+    cascade: true,
+  })
+  @JoinColumn({ name: 'senderId' })
   sender: User;
 
   @Column()
   senderId: string;
 
-  @ManyToOne(() => User, (user) => user.receivedMessages)
-  @JoinColumn({ name: 'recipient_id' })
+  @ManyToOne(() => User, (user) => user.receivedMessages, {
+    cascade: true,
+  })
+  @JoinColumn({ name: 'recipientId' })
   recipient: User;
 
   @Column()
