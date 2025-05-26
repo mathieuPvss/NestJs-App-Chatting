@@ -84,4 +84,15 @@ export class UsersService {
     const user = await this.findOne(id);
     await this.userRepository.deleteUser(user.id);
   }
+
+  async searchUser(query: string): Promise<{ id: string; username: string }> {
+    const user = await this.userRepository.findByUsername(query);
+    if (!user) {
+      throw new NotFoundException(
+        `Utilisateur avec le username ${query} introuvable.`,
+      );
+    }
+    const { id, username } = user;
+    return { id, username };
+  }
 }

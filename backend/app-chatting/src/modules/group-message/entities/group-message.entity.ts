@@ -6,8 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from 'src/modules/users/entities/user.entity';
-import { Group } from 'src/modules/group/entities/group.entity';
+import { User } from '@/modules/users/entities/user.entity';
+import { Group } from '@/modules/group/entities/group.entity';
 
 @Entity('group_messages')
 export class GroupMessage {

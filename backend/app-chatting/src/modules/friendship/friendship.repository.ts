@@ -65,7 +65,7 @@ export class FriendshipRepository {
 
   async findAllFriends(
     userId: string,
-  ): Promise<{ friendshipId: string; friend: User }[]> {
+  ): Promise<{ friendshipId: string; friend: Partial<User> }[]> {
     const friendships = await this.repo.find({
       where: [
         { requesterId: userId, status: FriendshipStatus.ACCEPTED },
@@ -80,9 +80,14 @@ export class FriendshipRepository {
           ? friendship.recipient
           : friendship.requester;
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, username } = friend;
       return {
         friendshipId: friendship.id,
-        friend,
+        friend: {
+          id,
+          username,
+        },
       };
     });
   }

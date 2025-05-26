@@ -111,7 +111,7 @@ export class FriendshipService {
 
   async getAllFriends(
     userId: string,
-  ): Promise<{ friendshipId: string; friend: User }[]> {
+  ): Promise<{ friendshipId: string; friend: Partial<User> }[]> {
     return this.friendshipRepo.findAllFriends(userId);
   }
 }

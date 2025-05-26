@@ -1,3 +1,49 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { friendshipService } from '@/services/friendshipService'
+import DialogSearchUser from '@/components/friends/DialogSearchUser.vue'
+
+const dialogAddBlockRef = ref<InstanceType<typeof DialogSearchUser> | null>(null)
+
+const friends = ref<
+  {
+    friendshipId: string
+    id: string
+    username: string
+    avatar: string
+  }[]
+>([])
+
+onMounted(async () => {
+  const response = await friendshipService.getAllFriends()
+
+  const avatarsRes = await fetch('https://randomuser.me/api/?results=' + response.length)
+  const avatarsData = await avatarsRes.json()
+
+  friends.value = response.map((entry, index) => {
+    const friend = entry.friend
+    const avatar = avatarsData.results[index].picture.large
+
+    return {
+      friendshipId: entry.friendshipId,
+      username: friend.username,
+      id: friend.id,
+      avatar,
+    }
+  })
+})
+
+function sendMessage(friend) {
+  alert(`Envoyer un message à ${friend.username}`)
+}
+
+function removeFriend(friend) {
+  alert(`Supprimer ${friend.username} de la liste d'amis`)
+}
+</script>
+
 <template>
   <div class="p-6">
     <h1 class="text-3xl font-bold mb-6">Mes amis</h1>
@@ -7,7 +53,7 @@
         placeholder="Rechercher un ami"
         class="rounded-md border-solid border-2 border-gray-300 p-1"
       />
-      <Button>Ajouter un ami</Button>
+      <Button @click="dialogAddBlockRef?.openDialogFunction()">Ajouter un ami</Button>
     </div>
     <ul class="space-y-4">
       <li
@@ -28,32 +74,6 @@
         </div>
       </li>
     </ul>
+    <DialogSearchUser ref="dialogAddBlockRef" />
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-
-const friends = ref([
-  {
-    id: 1,
-    username: 'JeanDupont',
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-  },
-  {
-    id: 2,
-    username: 'MarieCurie',
-    avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-  },
-])
-
-function sendMessage(friend) {
-  alert(`Envoyer un message à ${friend.username}`)
-}
-
-function removeFriend(friend) {
-  alert(`Supprimer ${friend.username} de la liste d'amis`)
-}
-</script>

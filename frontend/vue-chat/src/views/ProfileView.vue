@@ -54,7 +54,6 @@ const handleSubmit = async () => {
     }
     isEditing.value = false
   } catch (error: any) {
-    console.log(error)
     if (error.response?.status === 403) {
       toast.error('Mot de passe incorrect')
     } else {

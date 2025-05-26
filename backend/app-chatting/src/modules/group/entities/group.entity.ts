@@ -1,5 +1,5 @@
-import { GroupMessage } from 'src/modules/group-message/entities/group-message.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { GroupMessage } from '@/modules/group-message/entities/group-message.entity';
+import { User } from '@/modules/users/entities/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

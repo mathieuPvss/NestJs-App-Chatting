@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../modules/users/entities/user.entity';
+import { Role, User } from '../modules/users/entities/user.entity';
 import { Group } from '../modules/group/entities/group.entity';
 import { Message } from '../modules/messages/entities/message.entity';
 import { Friendship } from '../modules/friendship/entities/friendship.entity';
@@ -11,6 +11,7 @@ import { groups } from './group.seed';
 import { messages } from './message.seed';
 import { friendships } from './friendship.seed';
 import { groupMessages } from './group-message.seed';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class SeederService {
@@ -91,6 +92,15 @@ export class SeederService {
           return this.groupMessageRepository.save(message);
         }),
       );
+
+      // Seed Admin
+      const admin = this.userRepository.create({
+        username: 'admin',
+        email: 'admin@example.com',
+        password: bcrypt.hashSync('admin123', 10),
+        role: Role.ADMIN,
+      });
+      await this.userRepository.save(admin);
 
       console.log('Seeding completed successfully');
     } catch (error) {

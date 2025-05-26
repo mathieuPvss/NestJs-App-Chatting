@@ -1,15 +1,24 @@
 import type { Friendship } from '@/models/Friendship'
 import apiClient from './api'
+import type { AxiosResponse } from 'axios'
 
 export interface CreateFriendshipDto {
   recipientId: string
   requesterId: string
 }
 
+export interface GetAllFriendsResponse {
+  friendshipId: string
+  friend: {
+    id: string
+    username: string
+  }
+}
+
 class FriendshipService {
-  async sendFriendRequest(dto: CreateFriendshipDto): Promise<Friendship> {
+  async sendFriendRequest(dto: CreateFriendshipDto): Promise<AxiosResponse<Friendship>> {
     const response = await apiClient.post<Friendship>('/friendships', dto)
-    return response.data
+    return response
   }
 
   async getReceivedRequests(): Promise<Friendship[]> {
@@ -32,8 +41,8 @@ class FriendshipService {
     return response.data
   }
 
-  async getAllFriends(): Promise<Friendship[]> {
-    const response = await apiClient.get<Friendship[]>('/friendships')
+  async getAllFriends(): Promise<GetAllFriendsResponse[]> {
+    const response = await apiClient.get<GetAllFriendsResponse[]>('/friendships')
     return response.data
   }
 

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -53,7 +54,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
+  @Get('id/:id')
   @ApiOperation({ summary: 'Récupérer un utilisateur par son ID' })
   @ApiResponse({ status: 200, description: 'Utilisateur trouvé.', type: User })
   @ApiResponse({ status: 404, description: 'Utilisateur non trouvé.' })
@@ -84,5 +85,17 @@ export class UsersController {
   @ApiBearerAuth('access-token')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
+  }
+
+  @Get('/searchbyusername')
+  @ApiOperation({ summary: 'Rechercher un utilisateur par son username' })
+  @ApiResponse({
+    status: 200,
+    description: 'Utilisateur trouvé.',
+    type: User,
+  })
+  @ApiBearerAuth('access-token')
+  async searchUserByUsername(@Query('query') query: string) {
+    return await this.usersService.searchUser(query);
   }
 }
