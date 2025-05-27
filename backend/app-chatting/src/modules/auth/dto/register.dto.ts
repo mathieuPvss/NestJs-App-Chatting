@@ -26,4 +26,11 @@ export class RegisterDto {
     message: "Le nom d'utilisateur doit contenir entre 3 et 20 caractères.",
   })
   username: string;
+
+  @ApiProperty({
+    description: "Couleur de l'utilisateur",
+    example: '#FF0000',
+  })
+  @IsString()
+  color: string;
 }

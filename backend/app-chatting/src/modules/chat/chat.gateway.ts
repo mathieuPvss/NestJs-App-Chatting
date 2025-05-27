@@ -14,6 +14,8 @@ import { UseGuards } from '@nestjs/common';
 import { WsJwtAuthGuard } from '../auth/guards/ws-jwt-auth.guard';
 import { CreateMessageDto } from '../messages/dto/create-message.dto';
 import { CreateGroupMessageDto } from '../group-message/dto/create-group-message.dto';
+import { JwtService } from '@nestjs/jwt';
+import { GroupService } from '../group/group.service';
 
 @WebSocketGateway({
   cors: {
@@ -29,6 +31,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly messagesService: MessagesService,
     private readonly groupMessageService: GroupMessageService,
+    private readonly jwtService: JwtService,
+    private readonly groupService: GroupService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -40,15 +44,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      // L'utilisateur est déjà authentifié par le WsJwtAuthGuard
-      const userId = client.data.user.userId;
+      const payload = this.jwtService.decode(token) as { sub: string };
+      if (!payload || !payload.sub) {
+        client.disconnect();
+        return;
+      }
+      const userId = payload.sub;
       this.userSockets.set(userId, client.id);
 
       // Joindre une room personnelle pour l'utilisateur
       client.join(`user:${userId}`);
 
+      // Récupérer tous les groupes de l'utilisateur et les rejoindre
+      const userGroups = await this.groupService.findGroupsByUser(userId);
+      for (const group of userGroups) {
+        client.join(`group:${group.id}`);
+        console.log(`Utilisateur ${userId} a rejoint le groupe ${group.id}`);
+      }
+
       console.log(`Client connecté: ${client.id}, User: ${userId}`);
     } catch (error) {
+      console.log('handleConnection error', error);
       client.disconnect();
     }
   }
@@ -71,7 +87,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: CreateMessageDto,
   ) {
     try {
-      const userId = client.data.user.userId;
+      const userId = client.data.user.sub;
       const message = await this.messagesService.createMessage(data, userId);
 
       // Envoyer le message au destinataire
@@ -94,7 +110,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: CreateGroupMessageDto,
   ) {
     try {
-      const userId = client.data.user.userId;
+      const userId = client.data.user.sub;
       const message = await this.groupMessageService.createMessage(
         data,
         userId,
@@ -104,31 +120,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.server
         .to(`group:${data.groupId}`)
         .emit('new_group_message', message);
-
-      // Envoyer une confirmation à l'expéditeur
-      client.emit('group_message_sent', message);
     } catch (error) {
       client.emit('error', { message: error.message });
     }
-  }
-
-  @UseGuards(WsJwtAuthGuard)
-  @SubscribeMessage('join_group')
-  async handleJoinGroup(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { groupId: string },
-  ) {
-    client.join(`group:${data.groupId}`);
-    client.emit('joined_group', { groupId: data.groupId });
-  }
-
-  @UseGuards(WsJwtAuthGuard)
-  @SubscribeMessage('leave_group')
-  async handleLeaveGroup(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { groupId: string },
-  ) {
-    client.leave(`group:${data.groupId}`);
-    client.emit('left_group', { groupId: data.groupId });
   }
 }

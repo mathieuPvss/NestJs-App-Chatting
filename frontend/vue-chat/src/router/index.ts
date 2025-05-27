@@ -6,9 +6,12 @@ import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import ProfileView from '@/views/ProfileView.vue'
-import NewFriendsRequestView from '@/views/NewFriendsRequest.vue'
+import NewFriendsRequestView from '@/views/NewFriendsRequestView.vue'
 import MyFriendsRequestView from '@/views/MyFriendsRequest.vue'
 import FriendsView from '@/views/FriendsView.vue'
+import ChatView from '@/views/ChatView.vue'
+import NewGroupView from '@/views/NewGroupView.vue'
+import GroupChatView from '@/views/GroupChatView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -61,6 +64,21 @@ const router = createRouter({
           path: 'my-friends-request',
           name: 'my-friends-request',
           component: MyFriendsRequestView,
+        },
+        {
+          path: 'chat/:friendId',
+          name: 'chat',
+          component: ChatView,
+        },
+        {
+          path: 'new-group',
+          name: 'new-group',
+          component: NewGroupView,
+        },
+        {
+          path: 'group-chat/:groupId',
+          name: 'group-chat',
+          component: GroupChatView,
         },
       ],
     },

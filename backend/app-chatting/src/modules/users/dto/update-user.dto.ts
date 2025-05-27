@@ -41,4 +41,12 @@ export class UpdateUserDto {
     message: 'Le mot de passe doit contenir entre 3 et 20 caractères.',
   })
   newPassword?: string;
+
+  @ApiPropertyOptional({
+    description: "Couleur de l'utilisateur",
+    example: '#FF0000',
+  })
+  @IsOptional()
+  @IsString()
+  color: string;
 }

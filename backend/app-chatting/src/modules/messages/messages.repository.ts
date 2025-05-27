@@ -20,7 +20,6 @@ export class MessagesRepository {
       content,
       sender,
       senderId: sender.id,
-      recipient,
       recipientId: recipient.id,
     });
     return this.repo.save(message);

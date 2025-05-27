@@ -11,5 +11,6 @@ import { Message } from '../messages/entities/message.entity';
   imports: [TypeOrmModule.forFeature([Friendship, Message]), UsersModule],
   controllers: [FriendshipController],
   providers: [FriendshipService, FriendshipRepository],
+  exports: [FriendshipService],
 })
 export class FriendshipModule {}

@@ -42,4 +42,12 @@ export class CreateUserDto {
     message: "Le rôle doit être 'user' ou 'admin'.",
   })
   role: Role;
+
+  @ApiProperty({
+    description: "Couleur de l'utilisateur",
+    example: '#FF0000',
+    default: '#000000',
+  })
+  @IsString()
+  color: string;
 }

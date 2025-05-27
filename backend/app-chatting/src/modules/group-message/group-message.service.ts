@@ -24,13 +24,8 @@ export class GroupMessageService {
     const sender = await this.userService.findOne(senderId);
     const group = await this.groupService.findGroupById(
       createMessageDto.groupId,
+      senderId,
     );
-
-    // Vérifier si l'utilisateur est membre du groupe
-    const isMember = group.members.some((member) => member.id === senderId);
-    if (!isMember) {
-      throw new ForbiddenException("Vous n'êtes pas membre de ce groupe");
-    }
 
     return this.groupMessageRepository.createMessage(
       createMessageDto.content,
@@ -39,8 +34,11 @@ export class GroupMessageService {
     );
   }
 
-  async findMessagesByGroup(groupId: string): Promise<GroupMessage[]> {
-    const group = await this.groupService.findGroupById(groupId);
+  async findMessagesByGroup(
+    groupId: string,
+    userId: string,
+  ): Promise<GroupMessage[]> {
+    const group = await this.groupService.findGroupById(groupId, userId);
     if (!group) {
       throw new NotFoundException('Groupe non trouvé');
     }

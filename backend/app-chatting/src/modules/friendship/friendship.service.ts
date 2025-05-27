@@ -146,4 +146,12 @@ export class FriendshipService {
   ): Promise<{ friendshipId: string; friend: Partial<User> }[]> {
     return this.friendshipRepo.findAllFriends(userId);
   }
+
+  async isFriend(userId1: string, userId2: string): Promise<boolean> {
+    const friendship = await this.friendshipRepo.findExistingFriendship(
+      userId1,
+      userId2,
+    );
+    return friendship !== null;
+  }
 }

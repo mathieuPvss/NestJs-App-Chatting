@@ -6,6 +6,7 @@ export interface CreateUserDto {
   username: string
   email: string
   password: string
+  color: string
 }
 
 export interface UpdateUserDto {
@@ -13,6 +14,7 @@ export interface UpdateUserDto {
   email?: string
   oldPassword?: string
   newPassword?: string
+  color?: string
 }
 
 export const userService = {
@@ -27,7 +29,7 @@ export const userService = {
   },
 
   async findOne(id: string): Promise<User> {
-    const response = await apiClient.get<User>(`/users/${id}`)
+    const response = await apiClient.get<User>(`/users/id/${id}`)
     return response.data
   },
 

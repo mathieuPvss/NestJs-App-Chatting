@@ -92,6 +92,7 @@ export class SeederService {
         email: 'admin@example.com',
         password: bcrypt.hashSync('admin123', 10),
         role: Role.ADMIN,
+        color: '#000000',
       });
       await this.userRepository.save(admin);
 

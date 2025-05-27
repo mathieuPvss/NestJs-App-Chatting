@@ -19,9 +19,8 @@ export class GroupMessageRepository {
   ): Promise<GroupMessage> {
     const message = this.repo.create({
       content,
-      sender,
       senderId: sender.id,
-      group,
+      sender,
       groupId: group.id,
     });
     return this.repo.save(message);
@@ -30,7 +29,7 @@ export class GroupMessageRepository {
   async findMessagesByGroup(groupId: string): Promise<GroupMessage[]> {
     return this.repo.find({
       where: { groupId },
-      relations: ['sender', 'group'],
+      relations: ['sender'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -38,7 +37,6 @@ export class GroupMessageRepository {
   async findMessageById(messageId: string): Promise<GroupMessage | null> {
     return this.repo.findOne({
       where: { id: messageId },
-      relations: ['sender', 'group'],
     });
   }
 

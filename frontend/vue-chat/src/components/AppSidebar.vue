@@ -11,11 +11,23 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { useAuthStore } from '@/stores/auth'
-import { Home, Users, MessageSquare, UserPlus, UserCheck, Group } from 'lucide-vue-next'
+import {
+  Home,
+  Users,
+  MessageSquare,
+  UserPlus,
+  UserCheck,
+  Group as GroupIcon,
+} from 'lucide-vue-next'
 import AppFooterSidebar from './AppFooterSidebar.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ChevronUp } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
+import { friendshipService, type GetAllFriendsResponse } from '@/services/friendshipService'
+import { groupService } from '@/services/groupService'
+import type { Group } from '@/models/Group'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Plus } from 'lucide-vue-next'
 
 const activeMenu = ref<string | null>(null)
 
@@ -23,21 +35,25 @@ const toggleMenu = (menuName: string) => {
   activeMenu.value = activeMenu.value === menuName ? null : menuName
 }
 
-// Données factices pour les groupes
-const groups = [
-  { id: 1, name: 'Groupe de Développement' },
-  { id: 2, name: 'Groupe de Design' },
-  { id: 3, name: 'Groupe de Marketing' },
-]
+const friendAvatar = ref('https://randomuser.me/api/portraits/men/1.jpg')
 
-// Données factices pour les conversations
-const conversations = [
-  { id: 1, name: 'Jean Dupont' },
-  { id: 2, name: 'Marie Martin' },
-  { id: 3, name: 'Pierre Durand' },
-]
+const groups = ref<Group[]>([])
+const conversations = ref<GetAllFriendsResponse[]>([])
 
 const user = useAuthStore().user
+
+onMounted(async () => {
+  try {
+    const [friends, userGroups] = await Promise.all([
+      friendshipService.getAllFriends(),
+      groupService.getUserGroups(),
+    ])
+    conversations.value = friends
+    groups.value = userGroups
+  } catch (error) {
+    console.error('Erreur lors du chargement des données:', error)
+  }
+})
 </script>
 
 <template>
@@ -110,7 +126,7 @@ const user = useAuthStore().user
                   class="flex items-center justify-between w-full"
                 >
                   <div class="flex items-center gap-2">
-                    <Group class="w-5 h-5" />
+                    <GroupIcon class="w-5 h-5" />
                     <span>Groupes</span>
                   </div>
                   <ChevronUp
@@ -120,11 +136,21 @@ const user = useAuthStore().user
                 </SidebarMenuButton>
                 <div v-if="activeMenu === 'groups'" class="pl-6 space-y-2 mt-2">
                   <RouterLink
-                    v-for="group in groups"
-                    :key="group.id"
-                    :to="'/group/' + group.id"
+                    to="/new-group"
                     class="flex items-center gap-2 text-sm hover:text-primary"
                   >
+                    <Plus class="w-4 h-4" />
+                    <span>Nouveau groupe</span>
+                  </RouterLink>
+                  <RouterLink
+                    v-for="group in groups"
+                    :key="group.id"
+                    :to="'/group-chat/' + group.id"
+                    class="flex items-center gap-2 text-sm hover:text-primary"
+                  >
+                    <Avatar>
+                      <AvatarFallback>{{ group.name.charAt(0) }}</AvatarFallback>
+                    </Avatar>
                     <span>{{ group.name }}</span>
                   </RouterLink>
                 </div>
@@ -148,12 +174,15 @@ const user = useAuthStore().user
                 <div v-if="activeMenu === 'messages'" class="pl-6 space-y-2 mt-2">
                   <RouterLink
                     v-for="conv in conversations"
-                    :key="conv.id"
-                    :to="'/chat/' + conv.id"
+                    :key="conv.friendshipId"
+                    :to="'/chat/' + conv.friend.id"
                     class="flex items-center gap-2 text-sm hover:text-primary"
                   >
-                    <MessageSquare class="w-4 h-4" />
-                    <span>{{ conv.name }}</span>
+                    <Avatar>
+                      <AvatarImage :src="friendAvatar" />
+                      <AvatarFallback>{{ conv.friend.username.charAt(0) }}</AvatarFallback>
+                    </Avatar>
+                    <span>{{ conv.friend.username }}</span>
                   </RouterLink>
                 </div>
               </SidebarMenuItem>

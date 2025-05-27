@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import router from '@/router'
 
 const dialogAddBlockRef = ref<InstanceType<typeof DialogSearchUser> | null>(null)
 
@@ -49,8 +50,8 @@ onMounted(async () => {
   })
 })
 
-function sendMessage(friend) {
-  alert(`Envoyer un message à ${friend.username}`)
+function sendMessage(friendId: string) {
+  router.push(`/chat/${friendId}`)
 }
 
 async function removeFriend(friendshipId: string) {
@@ -90,7 +91,7 @@ async function removeFriend(friendshipId: string) {
           <span class="font-semibold text-lg">{{ friend.username }}</span>
         </div>
         <div class="flex items-center space-x-2">
-          <Button @click="sendMessage(friend)" variant="outline"> Message </Button>
+          <Button @click="sendMessage(friend.id)" variant="outline"> Message </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">Supprimer</Button>

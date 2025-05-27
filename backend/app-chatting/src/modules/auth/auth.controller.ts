@@ -12,7 +12,12 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
   async register(@Body() dto: RegisterDto) {
-    await this.authService.register(dto.email, dto.password, dto.username);
+    await this.authService.register(
+      dto.email,
+      dto.password,
+      dto.username,
+      dto.color,
+    );
     return;
   }
 

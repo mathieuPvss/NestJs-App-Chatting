@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Not, Repository } from 'typeorm';
-import { Friendship, FriendshipStatus } from './entities/friendship.entity';
 import { User } from 'src/modules/users/entities/user.entity';
+import { In, Repository } from 'typeorm';
 import { Message } from '../messages/entities/message.entity';
+import { Friendship, FriendshipStatus } from './entities/friendship.entity';
 
 @Injectable()
 export class FriendshipRepository {
@@ -128,12 +128,12 @@ export class FriendshipRepository {
         {
           requesterId: userId1,
           recipientId: userId2,
-          status: Not(FriendshipStatus.REJECTED),
+          status: FriendshipStatus.ACCEPTED,
         },
         {
           requesterId: userId2,
           recipientId: userId1,
-          status: Not(FriendshipStatus.REJECTED),
+          status: FriendshipStatus.ACCEPTED,
         },
       ],
     });

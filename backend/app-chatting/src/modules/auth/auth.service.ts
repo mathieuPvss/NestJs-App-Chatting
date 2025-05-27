@@ -11,12 +11,18 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string, username: string) {
+  async register(
+    email: string,
+    password: string,
+    username: string,
+    color: string,
+  ) {
     return this.usersService.create({
       email,
       password,
       role: Role.USER,
       username,
+      color,
     });
   }
 
@@ -36,7 +42,7 @@ export class AuthService {
       username: user.username,
     };
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.sign(payload, { expiresIn: '1m' }),
+      this.jwtService.sign(payload, { expiresIn: '15m' }),
       this.jwtService.sign(payload, { expiresIn: '7d' }),
     ]);
 

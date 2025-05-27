@@ -7,7 +7,6 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -16,13 +15,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Public } from 'src/common/decorator/public.decorator';
-import { Roles } from 'src/common/decorator/roles.decorateur';
-import { Role } from 'src/modules/users/entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
-import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('Users')
 @Controller('users')
@@ -59,8 +55,8 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Utilisateur trouvé.', type: User })
   @ApiResponse({ status: 404, description: 'Utilisateur non trouvé.' })
   @ApiBearerAuth('access-token')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  // @UseGuards(RolesGuard)
+  // @Roles(Role.ADMIN)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }

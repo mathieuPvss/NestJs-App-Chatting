@@ -44,8 +44,12 @@ export class GroupMessageController {
   @ApiParam({ name: 'groupId', description: 'ID du groupe' })
   async findMessagesByGroup(
     @Param('groupId') groupId: string,
+    @Request() req,
   ): Promise<GroupMessage[]> {
-    return this.groupMessageService.findMessagesByGroup(groupId);
+    return this.groupMessageService.findMessagesByGroup(
+      groupId,
+      req.user.userId,
+    );
   }
 
   @Delete(':id')

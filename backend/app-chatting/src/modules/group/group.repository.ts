@@ -25,17 +25,10 @@ export class GroupRepository {
     return this.repo.save(group);
   }
 
-  async findOneById(groupId: string): Promise<Group | null> {
+  async findById(groupId: string): Promise<Group> {
     return this.repo.findOne({
       where: { id: groupId },
-      relations: ['owner', 'members'],
-    });
-  }
-
-  async findById(groupId: string): Promise<Group | null> {
-    return this.repo.findOne({
-      where: { id: groupId },
-      relations: ['owner', 'members', 'messages'],
+      relations: ['members'],
     });
   }
 
@@ -46,7 +39,6 @@ export class GroupRepository {
           id: userId,
         },
       },
-      relations: ['members', 'owner'],
     });
   }
 

@@ -29,9 +29,18 @@ export class GroupService {
     );
   }
 
-  async findGroupById(groupId: string): Promise<Group> {
+  async findGroupById(groupId: string, userId: string): Promise<Group> {
     const group = await this.groupRepository.findById(groupId);
     if (!group) throw new NotFoundException('Group not found');
+
+    const isMember = group.members.some((member) => member.id === userId);
+    if (!isMember) {
+      throw new ForbiddenException('User is not a member of the group');
+    }
+
+    group.members.forEach((member) => {
+      member.password = undefined;
+    });
     return group;
   }
 
@@ -40,7 +49,7 @@ export class GroupService {
   }
 
   async addMember(groupId: string, userId: string): Promise<Group> {
-    const group = await this.groupRepository.findOneById(groupId);
+    const group = await this.groupRepository.findById(groupId);
     if (!group) throw new NotFoundException('Group not found');
 
     const user = await this.userService.findOne(userId);
@@ -54,7 +63,7 @@ export class GroupService {
   }
 
   async removeMember(groupId: string, userId: string): Promise<Group> {
-    const group = await this.groupRepository.findOneById(groupId);
+    const group = await this.groupRepository.findById(groupId);
     if (!group) throw new NotFoundException('Group not found');
 
     if (group.ownerId === userId) {
@@ -70,7 +79,7 @@ export class GroupService {
   }
 
   async deleteGroup(groupId: string, userId: string): Promise<void> {
-    const group = await this.groupRepository.findOneById(groupId);
+    const group = await this.groupRepository.findById(groupId);
     if (!group) throw new NotFoundException('Group not found');
 
     if (group.ownerId !== userId) {

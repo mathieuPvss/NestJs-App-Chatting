@@ -24,6 +24,7 @@ const formData = ref({
   oldPassword: '',
   newPassword: '',
   confirmPassword: '',
+  color: authStore.user?.color || '#000000',
 })
 
 const isEditing = ref(false)
@@ -38,6 +39,7 @@ const handleSubmit = async () => {
     email: formData.value.email,
     oldPassword: formData.value.oldPassword,
     newPassword: formData.value.newPassword,
+    color: formData.value.color,
   }
 
   try {
@@ -98,6 +100,11 @@ const handleSubmit = async () => {
                 :disabled="!isEditing"
                 placeholder="Votre email"
               />
+            </div>
+
+            <div class="space-y-2">
+              <Label for="color">Couleur de vos messages</Label>
+              <Input id="color" v-model="formData.color" type="color" />
             </div>
           </div>
 

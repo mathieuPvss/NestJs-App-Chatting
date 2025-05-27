@@ -1,9 +1,12 @@
 import { io, Socket } from 'socket.io-client'
 import { useAuthStore } from '@/stores/auth'
+import type { Message } from '@/models/Message'
+import type { GroupMessage } from '@/models/GroupMessage'
 
 class ChatService {
   private socket: Socket | null = null
-  private messageHandlers: Map<string, (data: any) => void> = new Map()
+  private messageHandlers: Map<string, (data: Message) => void> = new Map()
+  private groupMessageHandlers: Map<string, (data: GroupMessage) => void> = new Map()
 
   connect() {
     const authStore = useAuthStore()
@@ -33,29 +36,24 @@ class ChatService {
       console.log('Déconnecté du serveur de chat')
     })
 
-    this.socket.on('error', (error) => {
+    this.socket.on('error', (error: Error) => {
       console.error('Erreur de socket:', error)
     })
 
     // Écouteurs pour les messages privés
-    this.socket.on('new_private_message', (message) => {
+    this.socket.on('new_private_message', (message: Message) => {
       const handler = this.messageHandlers.get('new_private_message')
       if (handler) handler(message)
     })
 
-    this.socket.on('private_message_sent', (message) => {
+    this.socket.on('private_message_sent', (message: Message) => {
       const handler = this.messageHandlers.get('private_message_sent')
       if (handler) handler(message)
     })
 
     // Écouteurs pour les messages de groupe
-    this.socket.on('new_group_message', (message) => {
-      const handler = this.messageHandlers.get('new_group_message')
-      if (handler) handler(message)
-    })
-
-    this.socket.on('group_message_sent', (message) => {
-      const handler = this.messageHandlers.get('group_message_sent')
+    this.socket.on('new_group_message', (message: GroupMessage) => {
+      const handler = this.groupMessageHandlers.get('new_group_message')
       if (handler) handler(message)
     })
   }
@@ -71,24 +69,21 @@ class ChatService {
     this.socket.emit('group_message', data)
   }
 
-  // Méthodes pour gérer les groupes
-  joinGroup(groupId: string) {
-    if (!this.socket) throw new Error('Socket non connecté')
-    this.socket.emit('join_group', { groupId })
-  }
-
-  leaveGroup(groupId: string) {
-    if (!this.socket) throw new Error('Socket non connecté')
-    this.socket.emit('leave_group', { groupId })
-  }
-
   // Méthodes pour gérer les événements
-  on(event: string, handler: (data: any) => void) {
+  on(event: string, handler: (data: Message) => void) {
     this.messageHandlers.set(event, handler)
+  }
+
+  onGroup(event: string, handler: (data: GroupMessage) => void) {
+    this.groupMessageHandlers.set(event, handler)
   }
 
   off(event: string) {
     this.messageHandlers.delete(event)
+  }
+
+  offGroup(event: string) {
+    this.groupMessageHandlers.delete(event)
   }
 
   disconnect() {

@@ -28,6 +28,9 @@ export class User {
   })
   role: Role;
 
+  @Column({ default: '#000000' })
+  color: string;
+
   @OneToMany(() => Message, (message) => message.sender)
   sentMessages: Message[];
 

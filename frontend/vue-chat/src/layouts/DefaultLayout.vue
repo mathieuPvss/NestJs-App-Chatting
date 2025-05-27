@@ -7,7 +7,7 @@ import { RouterView } from 'vue-router'
 <template>
   <SidebarProvider>
     <AppSidebar>
-      <main>
+      <main class="bg-gradient-to-b from-gray-50 to-gray-100 h-screen">
         <SidebarTrigger />
         <RouterView />
       </main>

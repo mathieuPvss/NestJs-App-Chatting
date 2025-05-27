@@ -25,6 +25,7 @@ export class UsersService {
       hashedPassword,
       createUserDto.role,
       createUserDto.username,
+      createUserDto.color,
     );
     return user;
   }
@@ -67,6 +68,11 @@ export class UsersService {
     if (updateUserDto.email) {
       updateUserData.email = updateUserDto.email;
     }
+
+    if (updateUserDto.color) {
+      updateUserData.color = updateUserDto.color;
+    }
+
     return this.userRepository.updateUser(user.id, updateUserData);
   }
 

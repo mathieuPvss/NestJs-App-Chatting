@@ -40,8 +40,8 @@ export class GroupController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Récupérer un groupe par son ID' })
   @ApiParam({ name: 'id', description: 'ID du groupe' })
-  async findById(@Param('id') id: string): Promise<Group> {
-    return this.groupService.findGroupById(id);
+  async findById(@Param('id') id: string, @Request() req): Promise<Group> {
+    return this.groupService.findGroupById(id, req.user.userId);
   }
 
   @Get('user')
@@ -87,5 +87,17 @@ export class GroupController {
     @Param('userId') userId: string,
   ): Promise<Group> {
     return this.groupService.removeMember(groupId, userId);
+  }
+
+  @Patch(':id/leave')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Quitter un groupe' })
+  @ApiParam({ name: 'id', description: 'ID du groupe' })
+  async leaveGroup(
+    @Param('id') groupId: string,
+    @Request() req,
+  ): Promise<void> {
+    this.groupService.removeMember(groupId, req.user.userId);
+    return;
   }
 }
