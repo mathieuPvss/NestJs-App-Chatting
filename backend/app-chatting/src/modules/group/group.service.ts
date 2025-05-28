@@ -3,17 +3,22 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { GroupRepository } from './group.repository';
 import { UsersService } from 'src/modules/users/users.service';
 import { Group } from './entities/group.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
+import { GroupMessageService } from '../group-message/group-message.service';
 
 @Injectable()
 export class GroupService {
   constructor(
     private readonly groupRepository: GroupRepository,
     private readonly userService: UsersService,
+    @Inject(forwardRef(() => GroupMessageService))
+    private readonly groupMessageService: GroupMessageService,
   ) {}
 
   async createGroup(createGroupDto: CreateGroupDto): Promise<Group> {
@@ -86,6 +91,7 @@ export class GroupService {
       throw new ForbiddenException('Only the owner can delete the group');
     }
 
+    await this.groupMessageService.deleteMessagesByGroup(groupId);
     await this.groupRepository.deleteGroup(groupId);
   }
 }

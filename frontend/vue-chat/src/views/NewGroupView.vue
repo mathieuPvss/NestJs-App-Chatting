@@ -78,7 +78,7 @@ const handleSubmit = async () => {
       memberIds: selectedMembers.value.map((member) => member.id),
     })
     toast.success('Le groupe a été créé avec succès')
-    router.push(`/groups/${group.id}`)
+    router.push(`/group-chat/${group.id}`)
   } catch (error) {
     console.error('Erreur lors de la création du groupe:', error)
     toast.error('Impossible de créer le groupe')

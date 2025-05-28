@@ -27,7 +27,9 @@ export class GroupMessage {
   @Column()
   senderId: string;
 
-  @ManyToOne(() => Group)
+  @ManyToOne(() => Group, (group) => group.messages, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'groupId' })
   group: Group;
 

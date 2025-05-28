@@ -1,19 +1,22 @@
 import {
+  ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
-import { GroupMessageRepository } from './group-message.repository';
 import { UsersService } from 'src/modules/users/users.service';
-import { GroupService } from 'src/modules/group/group.service';
+import { GroupService } from '../group/group.service';
 import { CreateGroupMessageDto } from './dto/create-group-message.dto';
 import { GroupMessage } from './entities/group-message.entity';
+import { GroupMessageRepository } from './group-message.repository';
 
 @Injectable()
 export class GroupMessageService {
   constructor(
     private readonly groupMessageRepository: GroupMessageRepository,
     private readonly userService: UsersService,
+    @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
   ) {}
 
@@ -57,5 +60,9 @@ export class GroupMessageService {
     }
 
     await this.groupMessageRepository.deleteMessage(messageId);
+  }
+
+  async deleteMessagesByGroup(groupId: string): Promise<void> {
+    await this.groupMessageRepository.deleteMessagesByGroup(groupId);
   }
 }

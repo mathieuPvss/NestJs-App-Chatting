@@ -103,6 +103,22 @@ const removeMember = async (userId: string) => {
   }
 }
 
+const leaveGroup = async () => {
+  await groupService.leaveGroup(groupId.value)
+  router.push('/home')
+}
+
+const deleteGroup = async () => {
+  try {
+    await groupService.deleteGroup(groupId.value)
+    toast.success('Le groupe a été supprimé avec succès')
+    router.push('/home')
+  } catch (error) {
+    console.error('Erreur lors de la suppression du groupe:', error)
+    toast.error('Impossible de supprimer le groupe')
+  }
+}
+
 async function loadGroupConversation(id: string) {
   try {
     chatService.offGroup('new_group_message')
@@ -129,11 +145,6 @@ async function loadGroupConversation(id: string) {
     console.error('Erreur lors du chargement du groupe:', error)
     toast.error('Impossible de charger le groupe')
   }
-}
-
-const leaveGroup = async () => {
-  await groupService.leaveGroup(groupId.value)
-  router.push('/home')
 }
 
 watch(
@@ -223,6 +234,12 @@ onUnmounted(() => {
                     >
                       Aucun ami trouvé
                     </div>
+                  </div>
+
+                  <div class="pt-4 border-t">
+                    <Button variant="destructive" class="w-full" @click="deleteGroup">
+                      Supprimer le groupe
+                    </Button>
                   </div>
                 </div>
               </template>

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GroupMessageService } from './group-message.service';
 import { GroupMessageController } from './group-message.controller';
@@ -8,7 +8,11 @@ import { UsersModule } from 'src/modules/users/users.module';
 import { GroupModule } from 'src/modules/group/group.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GroupMessage]), UsersModule, GroupModule],
+  imports: [
+    TypeOrmModule.forFeature([GroupMessage]),
+    UsersModule,
+    forwardRef(() => GroupModule),
+  ],
   controllers: [GroupMessageController],
   providers: [GroupMessageService, GroupMessageRepository],
   exports: [GroupMessageService],

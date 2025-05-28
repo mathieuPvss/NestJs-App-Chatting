@@ -43,4 +43,8 @@ export class GroupMessageRepository {
   async deleteMessage(messageId: string): Promise<void> {
     await this.repo.delete(messageId);
   }
+
+  async deleteMessagesByGroup(groupId: string): Promise<void> {
+    await this.repo.delete({ groupId });
+  }
 }
