@@ -1,0 +1,34 @@
+import { GroupMessage } from '@/modules/group-message/entities/group-message.entity';
+import { User } from '@/modules/users/entities/user.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
+  OneToMany,
+} from 'typeorm';
+
+@Entity()
+export class Group {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  ownerId: string;
+
+  @ManyToOne(() => User)
+  @JoinTable({ name: 'ownerId' })
+  owner: User;
+
+  @ManyToMany(() => User)
+  @JoinTable()
+  members: User[];
+
+  @OneToMany(() => GroupMessage, (message) => message.group)
+  messages: GroupMessage[];
+}
